@@ -22,8 +22,9 @@ A modern, interactive debugger for visualizing algorithms and data structures. P
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/visual-debugger.git
-cd visual-debugger
+git clone https://github.com/kcsarrdah/codeflow.git
+cd codeflow
+cd frontend
 ```
 
 2. Install dependencies:
