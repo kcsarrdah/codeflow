@@ -1,6 +1,12 @@
 import { useState, useCallback } from 'react';
 
-export const useResizable = (initialSize: number = 50) => {
+interface ResizeOptions {
+  direction: 'horizontal' | 'vertical';
+  minSize?: number;
+  maxSize?: number;
+}
+
+export const useResizable = (initialSize: number = 50, options: ResizeOptions) => {
   const [size, setSize] = useState(initialSize);
   const [isResizing, setIsResizing] = useState(false);
 
@@ -13,12 +19,16 @@ export const useResizable = (initialSize: number = 50) => {
   }, []);
 
   const resize = useCallback((event: MouseEvent) => {
-    if (isResizing) {
-      const containerWidth = window.innerWidth;
-      const newSize = (event.clientX / containerWidth) * 100;
-      setSize(Math.min(Math.max(newSize, 20), 80)); // Limit between 20% and 80%
+    if (!isResizing) return;
+
+    if (options.direction === 'horizontal') {
+      const newSize = (event.clientX / window.innerWidth) * 100;
+      setSize(Math.min(Math.max(newSize, options.minSize ?? 20), options.maxSize ?? 80));
+    } else {
+      const newSize = (event.clientY / window.innerHeight) * 100;
+      setSize(Math.min(Math.max(newSize, options.minSize ?? 30), options.maxSize ?? 70));
     }
-  }, [isResizing]);
+  }, [isResizing, options]);
 
   return {
     size,

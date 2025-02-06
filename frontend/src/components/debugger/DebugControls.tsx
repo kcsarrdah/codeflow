@@ -6,13 +6,15 @@ interface DebugControlsProps {
   onRun: () => void;
   onReset: () => void;
   isRunning: boolean;
+  disabled?: boolean;
 }
 
 const DebugControls: React.FC<DebugControlsProps> = ({
   onStep,
   onRun,
   onReset,
-  isRunning
+  isRunning,
+  disabled = false
 }) => {
   return (
     <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4">
@@ -20,7 +22,7 @@ const DebugControls: React.FC<DebugControlsProps> = ({
         <div className="flex justify-center items-center space-x-4">
           <button
             onClick={onStep}
-            disabled={isRunning}
+            disabled={disabled || isRunning}
             className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <SkipForward className="w-4 h-4" />
@@ -28,7 +30,8 @@ const DebugControls: React.FC<DebugControlsProps> = ({
           </button>
           <button
             onClick={onRun}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600"
+            disabled={disabled}
+            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isRunning ? (
               <>
@@ -44,7 +47,8 @@ const DebugControls: React.FC<DebugControlsProps> = ({
           </button>
           <button
             onClick={onReset}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600"
+            disabled={disabled}
+            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <RotateCcw className="w-4 h-4" />
             Reset

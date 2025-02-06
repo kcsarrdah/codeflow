@@ -24,6 +24,7 @@ import (
 	"os/exec"
 	"strings"
 	"time"
+
 	"github.com/google/uuid"
 )
 
@@ -99,52 +100,52 @@ func (e *Executor) Step() (*models.DebugSession, error) {
 }
 
 func (e *Executor) createDebugScript() string {
-    lines := e.parser.GetLines()
-    debugLines := []string{
-        "import sys, json, inspect, traceback",
-        "try:",
-    }
+	lines := e.parser.GetLines()
+	debugLines := []string{
+		"import sys, json, inspect, traceback",
+		"def get_variables():",
+		"    variables = []",
+		"    frame = inspect.currentframe().f_back",
+		"    # Create a safe copy of the variables",
+		"    safe_vars = frame.f_locals.copy()",
+		"    for name, val in safe_vars.items():",
+		"        if not name.startswith('__'):",
+		"            try:",
+		"                variables.append({",
+		"                    'name': str(name),",
+		"                    'value': str(val),",
+		"                    'type': str(type(val).__name__),",
+		"                    'line': " + fmt.Sprint(e.session.CurrentLine) + ",",
+		"                })",
+		"            except:",
+		"                pass",
+		"    return variables",
+		"",
+		"try:",
+	}
 
-    // Add code lines up to current line
-    for i, line := range lines {
-        if i < e.session.CurrentLine {
-            // Indent the line since we're inside a try block
-            debugLines = append(debugLines, "    "+line)
-        }
-    }
+	// Add code lines up to current line
+	for i, line := range lines {
+		if i < e.session.CurrentLine {
+			// Indent the line since we're inside a try block
+			debugLines = append(debugLines, "    "+line)
+		}
+	}
 
-    // Add debug information capture with safer variable handling
-    debugLines = append(debugLines, `
-    frame = inspect.currentframe()
-    # Create a safe copy of locals
-    local_vars = dict(frame.f_locals)
-    variables = []
-    for name, val in local_vars.items():
-        if not name.startswith('__'):
-            try:
-                variables.append({
-                    "name": name,
-                    "value": repr(val),
-                    "type": type(val).__name__,
-                    "line": ` + fmt.Sprint(e.session.CurrentLine) + `
-                })
-            except:
-                variables.append({
-                    "name": name,
-                    "value": "<<unprintable>>",
-                    "type": "unknown",
-                    "line": ` + fmt.Sprint(e.session.CurrentLine) + `
-                })
+	// Add debug information capture
+	debugLines = append(debugLines, `
+    # Capture state after execution
+    vars = get_variables()
     print("__DEBUG_START__")
     print(json.dumps({
-        "variables": variables,
+        "variables": vars,
         "output": "",
-        "line": ` + fmt.Sprint(e.session.CurrentLine) + `
+        "line": `+fmt.Sprint(e.session.CurrentLine)+`
     }))
     print("__DEBUG_END__")`)
 
-    // Add except block for error handling
-    debugLines = append(debugLines, `
+	// Add except block for error handling
+	debugLines = append(debugLines, `
 except Exception as e:
     print("__ERROR_START__")
     print(json.dumps({
@@ -153,7 +154,7 @@ except Exception as e:
     }))
     print("__ERROR_END__")`)
 
-    return strings.Join(debugLines, "\n")
+	return strings.Join(debugLines, "\n")
 }
 
 func (e *Executor) parseOutput(output string) error {
