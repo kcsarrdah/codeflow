@@ -1,5 +1,5 @@
 import React from 'react';
-import { LineChart } from 'lucide-react';
+import { LineChart, Play, SkipBack, SkipForward } from 'lucide-react';
 import ArrayVisualization from '../visualizations/ArrayVisualization';
 import TreeVisualization from '../visualizations/TreeVisualization';
 import GraphVisualization from '../visualizations/GraphVisualization';
@@ -15,6 +15,10 @@ interface VisualizationPanelProps {
   activeElements?: any;
   highlightedElements?: any;
   options?: Record<string, any>;
+  onStep?: () => void;
+  onRun?: () => void;
+  onReset?: () => void;
+  isRunning?: boolean;
 }
 
 const VisualizationPanel: React.FC<VisualizationPanelProps> = ({
@@ -22,7 +26,11 @@ const VisualizationPanel: React.FC<VisualizationPanelProps> = ({
   type = 'array',
   activeElements,
   highlightedElements,
-  options = {}
+  options = {},
+  onStep,
+  onRun,
+  onReset,
+  isRunning = false
 }) => {
   const renderVisualization = () => {
     switch (type) {
@@ -116,9 +124,34 @@ const VisualizationPanel: React.FC<VisualizationPanelProps> = ({
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex items-center gap-2 mb-2">
-        <LineChart className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Visualization</h2>
+      <div className="flex items-center justify-between gap-2 mb-2">
+        <div className="flex items-center gap-2">
+          <LineChart className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Visualization</h2>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onReset}
+            className="p-1.5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+            title="Previous Step"
+          >
+            <SkipBack className="w-4 h-4" />
+          </button>
+          <button
+            onClick={onRun}
+            className="p-1.5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+            title={isRunning ? "Pause" : "Play"}
+          >
+            <Play className="w-4 h-4" />
+          </button>
+          <button
+            onClick={onStep}
+            className="p-1.5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+            title="Next Step"
+          >
+            <SkipForward className="w-4 h-4" />
+          </button>
+        </div>
       </div>
       <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
         {renderVisualization()}

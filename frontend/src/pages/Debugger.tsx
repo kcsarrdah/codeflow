@@ -35,6 +35,8 @@ print(f"Original array: {numbers}")
 print(f"Sorted array: {sorted_numbers}")
 `);
 
+  const [testCase, setTestCase] = useState('[64, 34, 25, 12, 22, 11, 90]');
+
   const { 
     size: horizontalSize, 
     isResizing: isHorizontalResizing, 
@@ -49,6 +51,14 @@ print(f"Sorted array: {sorted_numbers}")
     startResizing: startVerticalResizing, 
     stopResizing: stopVerticalResizing, 
     resize: resizeVertical 
+  } = useResizable(70, { direction: 'vertical', minSize: 30, maxSize: 70 });
+
+  const {
+    size: visualizationSize,
+    isResizing: isVisualizationResizing,
+    startResizing: startVisualizationResizing,
+    stopResizing: stopVisualizationResizing,
+    resize: resizeVisualization
   } = useResizable(70, { direction: 'vertical', minSize: 30, maxSize: 70 });
 
   const debugController = useDebugger(code);
@@ -67,6 +77,26 @@ print(f"Sorted array: {sorted_numbers}")
     cursorStyle: 'row-resize',
   });
 
+  useResizeHandlers({
+    isResizing: isVisualizationResizing,
+    stopResizing: stopVisualizationResizing,
+    resize: resizeVisualization,
+    cursorStyle: 'row-resize',
+  });
+
+  const handleTestCaseChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setTestCase(e.target.value);
+    try {
+      // Basic validation for array format
+      const parsed = JSON.parse(e.target.value);
+      if (Array.isArray(parsed)) {
+        debugController.updateTestCase(parsed);
+      }
+    } catch (error) {
+      // Invalid JSON format - ignore
+    }
+  };
+
   return (
     <main className="flex-1 p-4 overflow-hidden">
       <div className="flex h-full gap-2">
@@ -83,6 +113,7 @@ print(f"Sorted array: {sorted_numbers}")
               code={code}
               onChange={setCode}
               onSetBreakpoint={debugController.setBreakpoint}
+              onRun={debugController.run}
               breakpoints={debugController.state.breakpoints}
               currentLine={debugController.state.currentLine}
             />
@@ -116,17 +147,48 @@ print(f"Sorted array: {sorted_numbers}")
           onMouseDown={startHorizontalResizing}
         />
 
-        {/* Right Panel: Visualization */}
+        {/* Right Panel: Visualization and Test Case */}
         <div 
-          className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 overflow-hidden"
+          className="flex flex-col gap-2"
           style={{ width: `${100 - horizontalSize}%` }}
         >
-          <VisualizationPanel 
-            data={debugController.arrayToVisualize}
-            type="array"
-            activeElements={[debugController.state.currentLine]}
-            highlightedElements={[]}
+          <div 
+            className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 overflow-hidden"
+            style={{ height: `${visualizationSize}%` }}
+          >
+            <VisualizationPanel 
+              data={debugController.arrayToVisualize}
+              type="array"
+              activeElements={[debugController.state.currentLine]}
+              highlightedElements={[]}
+              onStep={debugController.step}
+              onRun={debugController.run}
+              onReset={debugController.reset}
+              isRunning={debugController.state.isRunning}
+            />
+          </div>
+
+          {/* Visualization Resizer */}
+          <div
+            className={`h-2 cursor-row-resize bg-transparent hover:bg-indigo-500/50 transition-colors ${
+              isVisualizationResizing ? 'bg-indigo-500/50' : ''
+            }`}
+            onMouseDown={startVisualizationResizing}
           />
+
+          {/* Test Case Panel */}
+          <div 
+            className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4"
+            style={{ height: `${100 - visualizationSize}%` }}
+          >
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Test Case</h2>
+            <textarea
+              value={testCase}
+              onChange={handleTestCaseChange}
+              className="w-full h-[calc(100%-4rem)] p-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg font-mono text-sm text-gray-900 dark:text-white resize-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
+              placeholder="Enter your test case here (e.g., [1, 2, 3, 4, 5])"
+            />
+          </div>
         </div>
       </div>
 

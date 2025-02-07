@@ -16,6 +16,8 @@ describe('useDebugger', () => {
     expect(result.current.state).toEqual({
       variables: [],
       currentLine: -1,
+      output: [],
+      error: null,
       isRunning: false,
       breakpoints: new Set(),
     });
@@ -43,7 +45,9 @@ describe('useDebugger', () => {
     });
     
     expect(result.current.state.currentLine).toBe(0);
-    expect(result.current.state.variables.length).toBeGreaterThan(0);
+    expect(result.current.state.variables).toEqual([
+      { name: 'x', value: 1, type: 'number' }
+    ]);
   });
 
   it('should handle run state toggle', () => {
@@ -79,6 +83,8 @@ describe('useDebugger', () => {
     expect(result.current.state).toEqual({
       variables: [],
       currentLine: -1,
+      output: [],
+      error: null,
       isRunning: false,
       breakpoints: new Set(),
     });

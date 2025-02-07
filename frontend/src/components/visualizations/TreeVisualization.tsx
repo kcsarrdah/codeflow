@@ -14,9 +14,27 @@ interface TreeVisualizationProps {
 const TreeVisualization: React.FC<TreeVisualizationProps> = ({ root, activeNode }) => {
   const [hoveredNode, setHoveredNode] = useState<number | null>(null);
 
+  // Calculate tree dimensions
+  const getTreeDimensions = (node: TreeNode): { width: number; height: number } => {
+    if (!node) return { width: 0, height: 0 };
+    
+    const leftDim = node.left ? getTreeDimensions(node.left) : { width: 0, height: 0 };
+    const rightDim = node.right ? getTreeDimensions(node.right) : { width: 0, height: 0 };
+    
+    return {
+      width: Math.max(leftDim.width + rightDim.width + 120, 60),
+      height: Math.max(leftDim.height, rightDim.height) + 60
+    };
+  };
+
+  const dimensions = getTreeDimensions(root);
+  const centerX = dimensions.width / 2;
+  const topMargin = 40;
+
   const renderNode = (node: TreeNode, x: number, y: number, level: number) => {
     const radius = 24;
-    const horizontalSpacing = 80 / level;
+    const leftDim = node.left ? getTreeDimensions(node.left) : { width: 0 };
+    const rightDim = node.right ? getTreeDimensions(node.right) : { width: 0 };
     const isHovered = hoveredNode === node.value;
     
     return (
@@ -70,7 +88,7 @@ const TreeVisualization: React.FC<TreeVisualizationProps> = ({ root, activeNode 
                 <line
                   x1={x}
                   y1={y + radius}
-                  x2={x - horizontalSpacing}
+                  x2={x - leftDim.width / 2}
                   y2={y + 60}
                   className={`stroke-gray-300 dark:stroke-gray-600 transition-colors duration-300 ${
                     isHovered ? 'stroke-indigo-500 dark:stroke-indigo-400' : ''
@@ -78,7 +96,7 @@ const TreeVisualization: React.FC<TreeVisualizationProps> = ({ root, activeNode 
                   strokeWidth="2"
                   strokeLinecap="round"
                 />
-                {renderNode(node.left, x - horizontalSpacing, y + 60, level + 1)}
+                {renderNode(node.left, x - leftDim.width / 2, y + 60, level + 1)}
               </>
             )}
             {node.right && (
@@ -86,7 +104,7 @@ const TreeVisualization: React.FC<TreeVisualizationProps> = ({ root, activeNode 
                 <line
                   x1={x}
                   y1={y + radius}
-                  x2={x + horizontalSpacing}
+                  x2={x + rightDim.width / 2}
                   y2={y + 60}
                   className={`stroke-gray-300 dark:stroke-gray-600 transition-colors duration-300 ${
                     isHovered ? 'stroke-indigo-500 dark:stroke-indigo-400' : ''
@@ -94,7 +112,7 @@ const TreeVisualization: React.FC<TreeVisualizationProps> = ({ root, activeNode 
                   strokeWidth="2"
                   strokeLinecap="round"
                 />
-                {renderNode(node.right, x + horizontalSpacing, y + 60, level + 1)}
+                {renderNode(node.right, x + rightDim.width / 2, y + 60, level + 1)}
               </>
             )}
           </g>
@@ -104,9 +122,9 @@ const TreeVisualization: React.FC<TreeVisualizationProps> = ({ root, activeNode 
   };
 
   return (
-    <svg width="100%" height="400" className="overflow-visible">
-      <g transform="translate(50%, 40)">
-        {renderNode(root, 0, 0, 1)}
+    <svg width={dimensions.width} height={dimensions.height + topMargin} className="mx-auto">
+      <g transform={`translate(0, ${topMargin})`}>
+        {renderNode(root, centerX, 0, 1)}
       </g>
     </svg>
   );

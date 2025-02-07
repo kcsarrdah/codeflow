@@ -19,6 +19,7 @@ export const useDebugger = (initialCode: string) => {
     isRunning: false,
     breakpoints: new Set(),
   });
+  const [arrayToVisualize, setArrayToVisualize] = useState([64, 34, 25, 12, 22, 11, 90]);
 
   const setBreakpoint = useCallback((line: number) => {
     setState(prev => {
@@ -33,15 +34,26 @@ export const useDebugger = (initialCode: string) => {
   }, []);
 
   const step = useCallback(() => {
-    // Placeholder for step functionality
-    setState(prev => ({
-      ...prev,
-      currentLine: prev.currentLine + 1,
-    }));
+    setState(prev => {
+      const newLine = prev.currentLine + 1;
+      const newVariables = [...prev.variables];
+      
+      // Simulate variable updates based on code execution
+      if (newLine === 0) {
+        newVariables.push({ name: 'x', value: 1, type: 'number' });
+      } else if (newLine === 1) {
+        newVariables.push({ name: 'y', value: 2, type: 'number' });
+      }
+
+      return {
+        ...prev,
+        currentLine: newLine,
+        variables: newVariables,
+      };
+    });
   }, []);
 
   const run = useCallback(() => {
-    // Placeholder for run functionality
     setState(prev => ({
       ...prev,
       isRunning: !prev.isRunning,
@@ -59,8 +71,9 @@ export const useDebugger = (initialCode: string) => {
     });
   }, []);
 
-  // Mock data for visualization
-  const arrayToVisualize = [64, 34, 25, 12, 22, 11, 90];
+  const updateTestCase = useCallback((newTestCase: number[]) => {
+    setArrayToVisualize(newTestCase);
+  }, []);
 
   return {
     state,
@@ -69,5 +82,6 @@ export const useDebugger = (initialCode: string) => {
     run,
     reset,
     arrayToVisualize,
+    updateTestCase,
   };
 };
