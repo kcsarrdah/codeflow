@@ -6,13 +6,55 @@ A modern, interactive platform for learning and visualizing algorithms and data 
 
 ## Features
 
-- 🎨 Beautiful, intuitive user interface with dark mode support
-- 🔍 Step-by-step debugging with visual feedback
+### Visual Debugging
+- 🔍 Step-by-step code execution with visual feedback
 - 📊 Real-time visualization of data structures
 - 🎯 Breakpoint support
 - 🔄 Variable inspection and state tracking
 - 📝 Integrated code editor with syntax highlighting
 - 🌗 Dark mode support
+
+### Data Structures
+- Arrays and Lists
+- Binary Trees and BST
+- Graphs
+- Linked Lists
+- Hash Tables
+- Heaps
+- Tries
+- Bitmasks
+
+### Algorithms
+- Searching Algorithms
+  - Linear Search
+  - Binary Search
+  - Jump Search
+  - Interpolation Search
+- Sorting Algorithms
+  - Bubble Sort
+  - Selection Sort
+  - Insertion Sort
+  - Merge Sort
+  - Quick Sort
+  - Heap Sort
+- Graph Algorithms
+  - DFS
+  - BFS
+  - Dijkstra's Algorithm
+  - Kruskal's Algorithm
+  - Prim's Algorithm
+  - Topological Sort
+- Tree Algorithms
+  - Inorder Traversal
+  - Preorder Traversal
+  - Postorder Traversal
+  - Level Order Traversal
+
+### Practice Problems
+- Curated collection of coding problems
+- Difficulty-based categorization
+- Progress tracking
+- Problem solutions with explanations
 
 ## Getting Started
 
@@ -26,73 +68,62 @@ A modern, interactive platform for learning and visualizing algorithms and data 
 1. Clone the repository:
 ```bash
 git clone https://github.com/yourusername/codeflow.git
+```
+
+2. Navigate to the project directory:
+```bash
 cd codeflow
 ```
 
-2. Install dependencies:
+3. Install dependencies:
 ```bash
 npm install
 ```
 
-3. Start the development server:
+4. Start the development server:
 ```bash
 npm run dev
 ```
 
 The application will be available at `http://localhost:5173`
 
-## Usage
+### Demo Credentials
+- Email: krishnna@example.com
+- Password: Waynerooney10!
 
-1. **Write or Paste Code**
-   - Use the code editor on the left to write or paste your code
-   - The editor supports syntax highlighting and auto-indentation
-
-2. **Set Breakpoints**
-   - Click on the line numbers to toggle breakpoints
-   - Breakpoints are shown with a red dot
-
-3. **Debug Controls**
-   - Use the control panel at the bottom to:
-     - Step through code line by line
-     - Run until the next breakpoint
-     - Reset the execution
-
-4. **Visualization**
-   - The right panel shows a real-time visualization of your data structures
-   - Currently supports:
-     - Arrays/Lists
-     - Binary Trees
-     - Graphs
-     - Linked Lists
-
-5. **Variable Inspector**
-   - Monitor variables and their values in real-time
-   - View program output and error messages
-
-## Development
-
-This project uses:
-- React 18 with TypeScript for the frontend
-- Tailwind CSS for styling
-- CodeMirror for the code editor
-- Lucide React for icons
-- Vite as the build tool
-
-### Project Structure
+## Project Structure
 
 ```
 src/
-├── components/
+├── components/           # React components
 │   ├── debugger/        # Debugger-related components
 │   ├── layout/          # Layout components
+│   ├── problems/        # Problem-related components
 │   └── visualizations/  # Visualization components
-├── hooks/               # Custom React hooks
-└── tests/              # Test files
+├── context/             # React context providers
+├── data/               # Static data and configurations
+├── hooks/              # Custom React hooks
+├── pages/              # Page components
+├── services/           # API services
+├── test/               # Test files
+├── types/              # TypeScript type definitions
+└── utils/              # Utility functions
 ```
 
-### Running Tests
+## Development
+
+### Available Scripts
 
 ```bash
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+
 # Run tests
 npm run test
 
@@ -101,7 +132,42 @@ npm run test:ui
 
 # Generate coverage report
 npm run coverage
+
+# Run linter
+npm run lint
 ```
+
+### Tech Stack
+
+- **Frontend Framework**: React 18 with TypeScript
+- **Styling**: Tailwind CSS
+- **Code Editor**: CodeMirror
+- **Icons**: Lucide React
+- **Build Tool**: Vite
+- **Testing**: Vitest + React Testing Library
+- **State Management**: React Context
+- **HTTP Client**: Axios
+
+### Key Features Implementation
+
+#### Visual Debugger
+- Real-time code execution visualization
+- Support for multiple programming languages
+- Variable state tracking
+- Breakpoint management
+- Step-by-step execution
+
+#### Data Structure Visualizations
+- Interactive visualizations for common data structures
+- Real-time updates during algorithm execution
+- Customizable visualization parameters
+- Support for large datasets
+
+#### Problem Management
+- Problem categorization by difficulty and type
+- Progress tracking
+- Solution submission
+- Performance metrics
 
 ## Contributing
 
@@ -111,6 +177,14 @@ npm run coverage
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
+### Coding Standards
+
+- Follow TypeScript best practices
+- Write tests for new features
+- Use functional components and hooks
+- Follow the existing project structure
+- Document new features and changes
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -119,3 +193,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [CodeMirror](https://codemirror.net/) for the excellent code editor
 - [Tailwind CSS](https://tailwindcss.com/) for the styling system
+- [Lucide](https://lucide.dev/) for the beautiful icons
+- [React](https://reactjs.org/) for the UI framework
+- [Vite](https://vitejs.dev/) for the build system

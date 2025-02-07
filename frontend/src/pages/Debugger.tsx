@@ -6,6 +6,7 @@ import VariableInspector from '../components/debugger/VariableInspector';
 import { useResizable } from '../hooks/useResizable';
 import { useResizeHandlers } from '../hooks/useResizeHandlers';
 import { useDebugger } from '../hooks/useDebugger';
+// import { debuggerApi } from '../services/api';
 
 function Debugger() {
   const [code, setCode] = useState(`def bubble_sort(arr):
@@ -36,13 +37,15 @@ print(f"Sorted array: {sorted_numbers}")
 `);
 
   const [testCase, setTestCase] = useState('[64, 34, 25, 12, 22, 11, 90]');
+  const [sessionId, setSessionId] = useState<string | null>(null);
 
   const { 
     size: horizontalSize, 
     isResizing: isHorizontalResizing, 
     startResizing: startHorizontalResizing, 
     stopResizing: stopHorizontalResizing, 
-    resize: resizeHorizontal 
+    resize: resizeHorizontal,
+    containerRef: mainContainerRef
   } = useResizable(50, { direction: 'horizontal', minSize: 20, maxSize: 80 });
 
   const { 
@@ -62,6 +65,44 @@ print(f"Sorted array: {sorted_numbers}")
   } = useResizable(70, { direction: 'vertical', minSize: 30, maxSize: 70 });
 
   const debugController = useDebugger(code);
+
+  // Load saved debugger state
+  useEffect(() => {
+    const loadDebuggerState = async () => {
+      try {
+        // Commented out until backend is ready
+        // const { data } = await debuggerApi.getDebuggerState();
+        // if (data) {
+        //   setCode(data.code);
+        //   debugController.updateTestCase(JSON.parse(data.testCase));
+        // }
+      } catch (error) {
+        console.error('Failed to load debugger state:', error);
+      }
+    };
+
+    loadDebuggerState();
+  }, []);
+
+  // Save debugger state periodically
+  useEffect(() => {
+    const saveState = async () => {
+      try {
+        // Commented out until backend is ready
+        // await debuggerApi.saveDebuggerState({
+        //   code,
+        //   breakpoints: Array.from(debugController.state.breakpoints),
+        //   currentLine: debugController.state.currentLine,
+        //   variables: debugController.state.variables,
+        // });
+      } catch (error) {
+        console.error('Failed to save debugger state:', error);
+      }
+    };
+
+    const interval = setInterval(saveState, 30000); // Save every 30 seconds
+    return () => clearInterval(interval);
+  }, [code, debugController.state]);
 
   useResizeHandlers({
     isResizing: isHorizontalResizing,
@@ -97,7 +138,7 @@ print(f"Sorted array: {sorted_numbers}")
   };
 
   return (
-    <main className="flex-1 p-4 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+    <main className="flex-1 p-4 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800" ref={mainContainerRef}>
       <div className="flex h-full gap-2">
         {/* Left Panel: Code Editor and Variable Inspector */}
         <div 
