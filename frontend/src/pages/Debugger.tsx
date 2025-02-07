@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import CodeEditor from '../components/debugger/CodeEditor';
 import VisualizationPanel from '../components/debugger/VisualizationPanel';
 import DebugControls from '../components/debugger/DebugControls';
@@ -87,7 +87,6 @@ print(f"Sorted array: {sorted_numbers}")
   const handleTestCaseChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setTestCase(e.target.value);
     try {
-      // Basic validation for array format
       const parsed = JSON.parse(e.target.value);
       if (Array.isArray(parsed)) {
         debugController.updateTestCase(parsed);
@@ -98,7 +97,7 @@ print(f"Sorted array: {sorted_numbers}")
   };
 
   return (
-    <main className="flex-1 p-4 overflow-hidden">
+    <main className="flex-1 p-4 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <div className="flex h-full gap-2">
         {/* Left Panel: Code Editor and Variable Inspector */}
         <div 
@@ -106,7 +105,7 @@ print(f"Sorted array: {sorted_numbers}")
           style={{ width: `${horizontalSize}%` }}
         >
           <div 
-            className="flex-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 overflow-hidden"
+            className="flex-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 overflow-hidden border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-xl"
             style={{ height: `${verticalSize}%` }}
           >
             <CodeEditor
@@ -119,16 +118,15 @@ print(f"Sorted array: {sorted_numbers}")
             />
           </div>
 
-          {/* Vertical Resizer */}
           <div
-            className={`h-2 cursor-row-resize bg-transparent hover:bg-indigo-500/50 transition-colors ${
-              isVerticalResizing ? 'bg-indigo-500/50' : ''
+            className={`h-2 cursor-row-resize bg-transparent hover:bg-gray-500/50 transition-colors ${
+              isVerticalResizing ? 'bg-gray-500/50' : ''
             }`}
             onMouseDown={startVerticalResizing}
           />
 
           <div 
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 overflow-hidden"
+            className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 overflow-hidden border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-xl"
             style={{ height: `${100 - verticalSize}%` }}
           >
             <VariableInspector 
@@ -139,21 +137,23 @@ print(f"Sorted array: {sorted_numbers}")
           </div>
         </div>
 
-        {/* Horizontal Resizer */}
         <div
-          className={`w-2 cursor-col-resize bg-transparent hover:bg-indigo-500/50 transition-colors ${
-            isHorizontalResizing ? 'bg-indigo-500/50' : ''
+          className={`w-2 cursor-col-resize bg-transparent hover:bg-gray-500/50 transition-colors ${
+            isHorizontalResizing ? 'bg-gray-500/50' : ''
           }`}
           onMouseDown={startHorizontalResizing}
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Resize panels"
         />
 
-        {/* Right Panel: Visualization and Test Case */}
+        {/* Right Panel */}
         <div 
           className="flex flex-col gap-2"
           style={{ width: `${100 - horizontalSize}%` }}
         >
           <div 
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 overflow-hidden"
+            className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 overflow-hidden border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-xl"
             style={{ height: `${visualizationSize}%` }}
           >
             <VisualizationPanel 
@@ -168,24 +168,22 @@ print(f"Sorted array: {sorted_numbers}")
             />
           </div>
 
-          {/* Visualization Resizer */}
           <div
-            className={`h-2 cursor-row-resize bg-transparent hover:bg-indigo-500/50 transition-colors ${
-              isVisualizationResizing ? 'bg-indigo-500/50' : ''
+            className={`h-2 cursor-row-resize bg-transparent hover:bg-gray-500/50 transition-colors ${
+              isVisualizationResizing ? 'bg-gray-500/50' : ''
             }`}
             onMouseDown={startVisualizationResizing}
           />
 
-          {/* Test Case Panel */}
           <div 
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4"
+            className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 overflow-hidden border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-xl"
             style={{ height: `${100 - visualizationSize}%` }}
           >
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Test Case</h2>
             <textarea
               value={testCase}
               onChange={handleTestCaseChange}
-              className="w-full h-[calc(100%-4rem)] p-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg font-mono text-sm text-gray-900 dark:text-white resize-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
+              className="w-full h-[calc(100%-4rem)] p-3 bg-gray-50 dark:bg-gray-900 border border-gray-200/50 dark:border-gray-700/50 rounded-lg font-mono text-sm text-gray-900 dark:text-white resize-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 dark:focus:ring-gray-400 dark:focus:border-gray-400"
               placeholder="Enter your test case here (e.g., [1, 2, 3, 4, 5])"
             />
           </div>

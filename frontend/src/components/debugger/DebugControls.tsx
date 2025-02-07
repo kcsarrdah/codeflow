@@ -24,6 +24,7 @@ const DebugControls: React.FC<DebugControlsProps> = ({
             onClick={onStep}
             disabled={disabled || isRunning}
             className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="Step through code"
           >
             <SkipForward className="w-4 h-4" />
             Step
@@ -32,6 +33,7 @@ const DebugControls: React.FC<DebugControlsProps> = ({
             onClick={onRun}
             disabled={disabled}
             className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label={isRunning ? "Pause debugger" : "Run debugger"}
           >
             {isRunning ? (
               <>
@@ -49,6 +51,7 @@ const DebugControls: React.FC<DebugControlsProps> = ({
             onClick={onReset}
             disabled={disabled}
             className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="Reset debugger"
           >
             <RotateCcw className="w-4 h-4" />
             Reset

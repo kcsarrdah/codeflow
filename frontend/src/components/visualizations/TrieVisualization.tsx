@@ -20,27 +20,31 @@ const TrieVisualization: React.FC<TrieVisualizationProps> = ({ root, words = [] 
   const svgWidth = 1000;
   const svgHeight = 400;
 
+  // Convert trie structure to a flat array of nodes with positions
   const calculateNodePositions = (
     node: TrieNode,
     level: number = 0,
     position: number = 0,
     width: number = svgWidth,
-    positions: Map<string, { x: number; y: number }> = new Map()
-  ) => {
-    const children = Object.values(node.children);
+    positions: Map<string, { x: number; y: number }> = new Map(),
+    path: string = ''
+  ): Map<string, { x: number; y: number }> => {
+    if (!node || !node.children) return positions;
+
+    const childKeys = Object.keys(node.children);
     const x = position + width / 2;
     const y = level * levelHeight + 40;
-    const key = `${level}-${position}-${node.char}`;
-    positions.set(key, { x, y });
+    positions.set(path, { x, y });
 
-    const childWidth = width / children.length;
-    children.forEach((child, index) => {
+    const childWidth = width / Math.max(childKeys.length, 1);
+    childKeys.forEach((key, index) => {
       calculateNodePositions(
-        child,
+        node.children[key],
         level + 1,
         position + index * childWidth,
         childWidth,
-        positions
+        positions,
+        path + key
       );
     });
 
@@ -49,40 +53,49 @@ const TrieVisualization: React.FC<TrieVisualizationProps> = ({ root, words = [] 
 
   const positions = calculateNodePositions(root);
 
-  const isConnectedNode = (parentKey: string, childKey: string) => {
-    return hoveredNode === parentKey || hoveredNode === childKey;
+  const isConnectedNode = (parentPath: string, childPath: string) => {
+    return hoveredNode === parentPath || hoveredNode === childPath;
   };
 
   const renderEdges = (
     node: TrieNode,
     level: number = 0,
     position: number = 0,
-    width: number = svgWidth
-  ) => {
-    const children = Object.values(node.children);
-    const parentKey = `${level}-${position}-${node.char}`;
-    const parentPos = positions.get(parentKey)!;
+    width: number = svgWidth,
+    path: string = ''
+  ): JSX.Element[] => {
+    if (!node || !node.children) return [];
 
-    return children.flatMap((child, index) => {
-      const childWidth = width / children.length;
-      const childKey = `${level + 1}-${position + index * childWidth}-${child.char}`;
-      const childPos = positions.get(childKey)!;
+    const childKeys = Object.keys(node.children);
+    const parentPos = positions.get(path);
+    if (!parentPos) return [];
+
+    return childKeys.flatMap((key, index) => {
+      const childPath = path + key;
+      const childPos = positions.get(childPath);
+      if (!childPos) return [];
 
       return [
         <line
-          key={`${parentKey}-${childKey}`}
+          key={`${path}-${childPath}`}
           x1={parentPos.x}
           y1={parentPos.y}
           x2={childPos.x}
           y2={childPos.y}
           className={`transition-all ease-in-out duration-500 ${
-            isConnectedNode(parentKey, childKey)
+            isConnectedNode(path, childPath)
               ? 'stroke-indigo-500 dark:stroke-indigo-400'
               : 'stroke-gray-300 dark:stroke-gray-600'
           }`}
           strokeWidth="2"
         />,
-        ...renderEdges(child, level + 1, position + index * childWidth, childWidth),
+        ...renderEdges(
+          node.children[key],
+          level + 1,
+          position + index * (width / childKeys.length),
+          width / childKeys.length,
+          childPath
+        ),
       ];
     });
   };
@@ -91,17 +104,22 @@ const TrieVisualization: React.FC<TrieVisualizationProps> = ({ root, words = [] 
     node: TrieNode,
     level: number = 0,
     position: number = 0,
-    width: number = svgWidth
-  ) => {
-    const children = Object.values(node.children);
-    const key = `${level}-${position}-${node.char}`;
-    const pos = positions.get(key)!;
-    const isHovered = hoveredNode === key;
+    width: number = svgWidth,
+    path: string = ''
+  ): JSX.Element[] => {
+    if (!node || !node.children) return [];
+
+    const childKeys = Object.keys(node.children);
+    const pos = positions.get(path);
+    if (!pos) return [];
+
+    const isHovered = hoveredNode === path;
+    const currentChar = path.slice(-1) || '•';
 
     return [
       <g
-        key={key}
-        onMouseEnter={() => setHoveredNode(key)}
+        key={path}
+        onMouseEnter={() => setHoveredNode(path)}
         onMouseLeave={() => setHoveredNode(null)}
       >
         {/* Node shadow */}
@@ -142,11 +160,17 @@ const TrieVisualization: React.FC<TrieVisualizationProps> = ({ root, words = [] 
           textAnchor="middle"
           dominantBaseline="middle"
         >
-          {node.char || '•'}
+          {currentChar}
         </text>
       </g>,
-      ...children.flatMap((child, index) =>
-        renderNodes(child, level + 1, position + index * (width / children.length), width / children.length)
+      ...childKeys.flatMap((key, index) =>
+        renderNodes(
+          node.children[key],
+          level + 1,
+          position + index * (width / childKeys.length),
+          width / childKeys.length,
+          path + key
+        )
       ),
     ];
   };
@@ -169,13 +193,13 @@ const TrieVisualization: React.FC<TrieVisualizationProps> = ({ root, words = [] 
       </svg>
       
       {/* Empty state */}
-      {Object.keys(root.children).length === 0 && (
+      {!root || Object.keys(root.children || {}).length === 0 && (
         <div className="text-gray-500 dark:text-gray-400 text-sm text-center mt-8">
           Trie is empty
         </div>
       )}
     </div>
   );
-}
+};
 
 export default TrieVisualization;

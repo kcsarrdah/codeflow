@@ -1,8 +1,8 @@
-# Visual Debugger
+# CodeFlow
 
-A modern, interactive debugger for visualizing algorithms and data structures. Perfect for understanding algorithms, data structures, and solving coding problems through visual representation.
+A modern, interactive platform for learning and visualizing algorithms and data structures. Perfect for understanding complex code through visual representation.
 
-![Visual Debugger Screenshot](https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?auto=format&fit=crop&q=80&w=3270&ixlib=rb-4.0.3)
+![CodeFlow Screenshot](https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?auto=format&fit=crop&q=80&w=3270&ixlib=rb-4.0.3)
 
 ## Features
 
@@ -25,8 +25,8 @@ A modern, interactive debugger for visualizing algorithms and data structures. P
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/visual-debugger.git
-cd visual-debugger
+git clone https://github.com/yourusername/codeflow.git
+cd codeflow
 ```
 
 2. Install dependencies:
