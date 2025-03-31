@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import CodeEditor from '../components/debugger/CodeEditor';
 import VisualizationPanel from '../components/debugger/VisualizationPanel';
 import DebugControls from '../components/debugger/DebugControls';
 import VariableInspector from '../components/debugger/VariableInspector';
-import { useResizable } from '../hooks/useResizable';
 import { useResizeHandlers } from '../hooks/useResizeHandlers';
 import { useDebugger } from '../hooks/useDebugger';
-// import { debuggerApi } from '../services/api';
+import { useResize } from '../context/ResizeContext';
 
 function Debugger() {
   const [code, setCode] = useState(`def bubble_sort(arr):
@@ -37,92 +36,31 @@ print(f"Sorted array: {sorted_numbers}")
 `);
 
   const [testCase, setTestCase] = useState('[64, 34, 25, 12, 22, 11, 90]');
-  const [sessionId, setSessionId] = useState<string | null>(null);
-
-  const { 
-    size: horizontalSize, 
-    isResizing: isHorizontalResizing, 
-    startResizing: startHorizontalResizing, 
-    stopResizing: stopHorizontalResizing, 
-    resize: resizeHorizontal,
-    containerRef: mainContainerRef
-  } = useResizable(50, { direction: 'horizontal', minSize: 20, maxSize: 80 });
-
-  const { 
-    size: verticalSize, 
-    isResizing: isVerticalResizing, 
-    startResizing: startVerticalResizing, 
-    stopResizing: stopVerticalResizing, 
-    resize: resizeVertical 
-  } = useResizable(70, { direction: 'vertical', minSize: 30, maxSize: 70 });
-
-  const {
-    size: visualizationSize,
-    isResizing: isVisualizationResizing,
-    startResizing: startVisualizationResizing,
-    stopResizing: stopVisualizationResizing,
-    resize: resizeVisualization
-  } = useResizable(70, { direction: 'vertical', minSize: 30, maxSize: 70 });
-
   const debugController = useDebugger(code);
-
-  // Load saved debugger state
-  useEffect(() => {
-    const loadDebuggerState = async () => {
-      try {
-        // Commented out until backend is ready
-        // const { data } = await debuggerApi.getDebuggerState();
-        // if (data) {
-        //   setCode(data.code);
-        //   debugController.updateTestCase(JSON.parse(data.testCase));
-        // }
-      } catch (error) {
-        console.error('Failed to load debugger state:', error);
-      }
-    };
-
-    loadDebuggerState();
-  }, []);
-
-  // Save debugger state periodically
-  useEffect(() => {
-    const saveState = async () => {
-      try {
-        // Commented out until backend is ready
-        // await debuggerApi.saveDebuggerState({
-        //   code,
-        //   breakpoints: Array.from(debugController.state.breakpoints),
-        //   currentLine: debugController.state.currentLine,
-        //   variables: debugController.state.variables,
-        // });
-      } catch (error) {
-        console.error('Failed to save debugger state:', error);
-      }
-    };
-
-    const interval = setInterval(saveState, 30000); // Save every 30 seconds
-    return () => clearInterval(interval);
-  }, [code, debugController.state]);
+  
+  const {
+    state: {
+      mainSize,
+      leftSize,
+      rightSize,
+      isMainResizing,
+      isLeftResizing,
+      isRightResizing
+    },
+    startMainResizing,
+    startLeftResizing,
+    startRightResizing,
+    stopResizing,
+    resize,
+    leftContainerRef,
+    rightContainerRef
+  } = useResize();
 
   useResizeHandlers({
-    isResizing: isHorizontalResizing,
-    stopResizing: stopHorizontalResizing,
-    resize: resizeHorizontal,
-    cursorStyle: 'col-resize',
-  });
-
-  useResizeHandlers({
-    isResizing: isVerticalResizing,
-    stopResizing: stopVerticalResizing,
-    resize: resizeVertical,
-    cursorStyle: 'row-resize',
-  });
-
-  useResizeHandlers({
-    isResizing: isVisualizationResizing,
-    stopResizing: stopVisualizationResizing,
-    resize: resizeVisualization,
-    cursorStyle: 'row-resize',
+    isResizing: isMainResizing || isLeftResizing || isRightResizing,
+    stopResizing,
+    resize,
+    cursorStyle: isMainResizing ? 'col-resize' : 'row-resize',
   });
 
   const handleTestCaseChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -138,16 +76,17 @@ print(f"Sorted array: {sorted_numbers}")
   };
 
   return (
-    <main className="flex-1 p-4 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800" ref={mainContainerRef}>
+    <main className="flex-1 p-4 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <div className="flex h-full gap-2">
         {/* Left Panel: Code Editor and Variable Inspector */}
         <div 
-          className="flex flex-col gap-2"
-          style={{ width: `${horizontalSize}%` }}
+          ref={leftContainerRef}
+          className="flex flex-col gap-2 left-container"
+          style={{ width: `${mainSize}%` }}
         >
           <div 
             className="flex-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 overflow-hidden border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-xl"
-            style={{ height: `${verticalSize}%` }}
+            style={{ height: `${leftSize}%` }}
           >
             <CodeEditor
               code={code}
@@ -161,14 +100,14 @@ print(f"Sorted array: {sorted_numbers}")
 
           <div
             className={`h-2 cursor-row-resize bg-transparent hover:bg-gray-500/50 transition-colors ${
-              isVerticalResizing ? 'bg-gray-500/50' : ''
+              isLeftResizing ? 'bg-gray-500/50' : ''
             }`}
-            onMouseDown={startVerticalResizing}
+            onMouseDown={startLeftResizing}
           />
 
           <div 
             className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 overflow-hidden border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-xl"
-            style={{ height: `${100 - verticalSize}%` }}
+            style={{ height: `${100 - leftSize}%` }}
           >
             <VariableInspector 
               variables={debugController.state.variables}
@@ -180,9 +119,9 @@ print(f"Sorted array: {sorted_numbers}")
 
         <div
           className={`w-2 cursor-col-resize bg-transparent hover:bg-gray-500/50 transition-colors ${
-            isHorizontalResizing ? 'bg-gray-500/50' : ''
+            isMainResizing ? 'bg-gray-500/50' : ''
           }`}
-          onMouseDown={startHorizontalResizing}
+          onMouseDown={startMainResizing}
           role="separator"
           aria-orientation="vertical"
           aria-label="Resize panels"
@@ -190,12 +129,13 @@ print(f"Sorted array: {sorted_numbers}")
 
         {/* Right Panel */}
         <div 
-          className="flex flex-col gap-2"
-          style={{ width: `${100 - horizontalSize}%` }}
+          ref={rightContainerRef}
+          className="flex flex-col gap-2 right-container"
+          style={{ width: `${100 - mainSize}%` }}
         >
           <div 
             className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 overflow-hidden border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-xl"
-            style={{ height: `${visualizationSize}%` }}
+            style={{ height: `${rightSize}%` }}
           >
             <VisualizationPanel 
               data={debugController.arrayToVisualize}
@@ -211,14 +151,14 @@ print(f"Sorted array: {sorted_numbers}")
 
           <div
             className={`h-2 cursor-row-resize bg-transparent hover:bg-gray-500/50 transition-colors ${
-              isVisualizationResizing ? 'bg-gray-500/50' : ''
+              isRightResizing ? 'bg-gray-500/50' : ''
             }`}
-            onMouseDown={startVisualizationResizing}
+            onMouseDown={startRightResizing}
           />
 
           <div 
             className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 overflow-hidden border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-xl"
-            style={{ height: `${100 - visualizationSize}%` }}
+            style={{ height: `${100 - rightSize}%` }}
           >
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Test Case</h2>
             <textarea

@@ -22,6 +22,32 @@ backend/*.dylib
 backend/*.test
 backend/go.work
 
+# Backend Python specific
+backend/**/*.py[cod]
+backend/**/__pycache__/
+backend/**/*.so
+backend/**/.Python
+backend/**/env/
+backend/**/build/
+backend/**/develop-eggs/
+backend/**/dist/
+backend/**/downloads/
+backend/**/eggs/
+backend/**/.eggs/
+backend/**/lib/
+backend/**/lib64/
+backend/**/parts/
+backend/**/sdist/
+backend/**/var/
+backend/**/*.egg-info/
+backend/**/.installed.cfg
+backend/**/*.egg
+backend/**/venv/
+backend/**/.venv/
+backend/**/ENV/
+backend/**/.env/
+backend/**/.python-version
+
 # IDEs and editors
 .idea/
 .vscode/

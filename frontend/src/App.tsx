@@ -8,6 +8,7 @@ import DataStructures from './pages/DataStructures';
 import DataStructureDetail from './pages/DataStructureDetail';
 import Problems from './pages/Problems';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ResizeProvider } from './context/ResizeContext';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth();
@@ -36,7 +37,9 @@ function AppContent() {
             <Route path="/" element={<Landing />} />
             <Route path="/debugger" element={
               <ProtectedRoute>
-                <Debugger />
+                <ResizeProvider>
+                  <Debugger />
+                </ResizeProvider>
               </ProtectedRoute>
             } />
             <Route path="/data-structures" element={

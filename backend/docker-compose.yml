@@ -1,0 +1,30 @@
+services:
+  parser:
+    build: 
+      context: ./internal/parser/python
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./internal/parser/python:/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  backend:
+    build: 
+      context: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+    environment:
+      - PARSER_SERVICE_URL=http://parser:8000
+    depends_on:
+      - parser
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3

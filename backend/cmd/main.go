@@ -2,35 +2,52 @@
 package main
 
 import (
-    "log"
-    "github.com/gin-gonic/gin"
-    "debugger/internal/handlers"
+	"debugger/internal/handlers"
+	"debugger/internal/parser"
+	"log"
+	"net/http"
+	"os"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-    // Initialize router
-    r := gin.Default()
+	// Initialize router
+	r := gin.Default()
 
-    // CORS middleware
-    r.Use(func(c *gin.Context) {
-        c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-        c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-        c.Writer.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+	// CORS middleware
+	r.Use(func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 
-        if c.Request.Method == "OPTIONS" {
-            c.AbortWithStatus(204)
-            return
-        }
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
 
-        c.Next()
-    })
+		c.Next()
+	})
 
-    // Routes
-    r.POST("/debug/start", handlers.StartDebugSession)
-    r.POST("/debug/step/:id", handlers.StepDebugSession)
-    r.POST("/debug/reset/:id", handlers.ResetDebugSession)
-    r.GET("/debug/state/:id", handlers.GetDebugState)
+	// Initialize parser service client
+	parserURL := os.Getenv("PARSER_SERVICE_URL")
+	if parserURL == "" {
+		parserURL = "http://localhost:8000" // Default to localhost for local development
+	}
+	parserClient := parser.NewPythonParserClient(parserURL)
 
-    // Start server
-    log.Fatal(r.Run(":8080"))
+	// Health check
+	r.GET("/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"status": "ok", "message": "Server is healthy"})
+	})
+
+	// Routes
+	r.POST("/code/analyze", handlers.AnalyzeCode(parserClient)) // Only register once
+	r.POST("/debug/start", handlers.StartDebugSession)
+	r.POST("/debug/step/:id", handlers.StepDebugSession)
+	r.POST("/debug/reset/:id", handlers.ResetDebugSession)
+	r.GET("/debug/state/:id", handlers.GetDebugState)
+
+	// Start server
+	log.Fatal(r.Run(":8080"))
 }
