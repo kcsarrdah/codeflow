@@ -18,6 +18,7 @@ package debugger
 import (
 	"bytes"
 	"debugger/internal/models"
+	parsermodels "debugger/internal/parser/models"
 	"debugger/internal/utils"
 	"encoding/json"
 	"fmt"
@@ -29,11 +30,12 @@ import (
 )
 
 type Executor struct {
-	session *models.DebugSession
-	parser  *Parser
+	session     *models.DebugSession
+	parser      *Parser
+	parseResult *parsermodels.ParseResponse
 }
 
-func NewExecutor(code string) (*Executor, error) {
+func NewExecutor(code string, parseResult *parsermodels.ParseResponse) (*Executor, error) {
 	// Create new parser
 	parser := NewParser(code)
 
@@ -42,21 +44,105 @@ func NewExecutor(code string) (*Executor, error) {
 		return nil, err
 	}
 
+	visualizerType := determineVisualizerType(parseResult)
+
 	// Create new debug session
 	session := &models.DebugSession{
-		ID:          uuid.New().String(),
-		Code:        code,
-		CurrentLine: 1,
-		Variables:   make([]models.Variable, 0),
-		Status:      "initialized",
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
+		ID:             uuid.New().String(),
+		Code:           code,
+		CurrentLine:    1,
+		Variables:      make([]models.Variable, 0),
+		Status:         "initialized",
+		VisualizerType: visualizerType,
+		CreatedAt:      time.Now(),
+		UpdatedAt:      time.Now(),
 	}
 
 	return &Executor{
-		session: session,
-		parser:  parser,
+		session:     session,
+		parser:      parser,
+		parseResult: parseResult,
 	}, nil
+}
+
+func determineVisualizerType(parseResult *parsermodels.ParseResponse) string {
+	//default to array
+	visType := "array"
+
+	//Algorithm Detectin based on complexity and data structures
+	if parseResult == nil {
+		//check data structures
+		for _, ds := range parseResult.DataStructures {
+			switch ds.Type {
+			case "tree", "binary_tree":
+				return "tree"
+			case "graph":
+				return "graph"
+			case "linked_list":
+				return "linkedList"
+			}
+		}
+
+		if parseResult.Complexity.Time == "O(n²)" {
+			// Most likely a sorting algorithm
+			return "array"
+		}
+	}
+
+	return visType
+
+}
+
+func (e *Executor) generateVisualizationHints() []models.VisualizationHint {
+	hints := make([]models.VisualizationHint, 0)
+
+	// Skip if we don't have parse result
+	if e.parseResult == nil {
+		return hints
+	}
+
+	currentLine := e.session.CurrentLine
+	currentCode := ""
+	if currentLine > 0 && currentLine <= len(e.parser.GetLines()) {
+		currentCode = e.parser.GetLines()[currentLine-1]
+	}
+
+	// Check for array operations in sorting algorithms
+	if e.session.VisualizerType == "array" {
+		// Detect comparison operations
+		if strings.Contains(currentCode, ">") || strings.Contains(currentCode, "<") {
+			// Find array variables
+			var arrayVar string
+			var indices []int
+
+			// Look for array indices in the code
+			for _, v := range e.session.Variables {
+				if v.Type == "list" || v.Type == "array" {
+					arrayVar = v.Name
+					break
+				}
+			}
+
+			// Create comparison hint
+			if arrayVar != "" {
+				hints = append(hints, models.VisualizationHint{
+					Type:      "comparison",
+					Elements:  indices,
+					Operation: "compare",
+				})
+			}
+		}
+
+		// Detect swap operations
+		if strings.Contains(currentCode, "=") && strings.Contains(currentCode, ",") {
+			hints = append(hints, models.VisualizationHint{
+				Type:      "swap",
+				Operation: "swap",
+			})
+		}
+	}
+
+	return hints
 }
 
 func (e *Executor) Step() (*models.DebugSession, error) {
@@ -88,6 +174,9 @@ func (e *Executor) Step() (*models.DebugSession, error) {
 	// Update session state
 	e.session.CurrentLine++
 	e.session.UpdatedAt = time.Now()
+
+	hints := e.generateVisualizationHints()
+	e.session.VisualizationHints = hints
 
 	// Check if we've reached the end of the code
 	if e.session.CurrentLine > len(e.parser.GetLines()) {

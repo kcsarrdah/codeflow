@@ -9,6 +9,8 @@
 package handlers
 
 import (
+	"debugger/internal/parser"
+	parsermodels "debugger/internal/parser/models"
 	"debugger/internal/services/debugger"
 
 	"github.com/gin-gonic/gin"
@@ -17,23 +19,39 @@ import (
 // Store sessions in memory for now
 var sessions = make(map[string]*debugger.Executor)
 
+// In StartDebugSession function
 func StartDebugSession(c *gin.Context) {
-	var req struct {
-		Code string `json:"code" binding:"required"`
+	var request struct {
+		Code string `json:"code"`
 	}
 
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(400, gin.H{"error": "Invalid request: code is required"})
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
-	executor, err := debugger.NewExecutor(req.Code)
+	// First, parse the code using the parser service
+	parserClient := parser.NewPythonParserClient("http://parser:8000")
+	parseResult, err := parserClient.Parse(parsermodels.ParseRequest{
+		Code:     request.Code,
+		Language: "python",
+	})
+
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Failed to parse code: " + err.Error()})
+		return
+	}
+
+	// Create a new executor with the parse results
+	executor, err := debugger.NewExecutor(request.Code, parseResult)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
+	// Store the session (keep your existing session storage logic)
 	session := executor.GetSession()
+	// Save the session (use your existing code)
 	sessions[session.ID] = executor
 
 	c.JSON(200, session)
