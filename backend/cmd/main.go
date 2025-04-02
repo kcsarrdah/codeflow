@@ -58,6 +58,20 @@ func main() {
 	r.POST("/debug/reset/:id", handlers.ResetDebugSession)
 	r.GET("/debug/state/:id", handlers.GetDebugState)
 
+	// Problem routes
+	r.GET("/api/problems", handlers.GetAllProblems)
+	r.POST("/api/problems", handlers.CreateProblem)
+	r.GET("/api/problems/:id", handlers.GetProblemByID)
+	r.PUT("/api/problems/:id", handlers.UpdateProblem)
+	r.DELETE("/api/problems/:id", handlers.DeleteProblem)
+
+	// Test case routes
+	r.GET("/api/test-cases", handlers.GetAllTestCases)
+	r.POST("/api/test-cases", handlers.CreateTestCase)
+	r.GET("/api/test-cases/:id", handlers.GetTestCaseByID)
+	r.PUT("/api/test-cases/:id", handlers.UpdateTestCase)
+	r.DELETE("/api/test-cases/:id", handlers.DeleteTestCase)
+
 	// Start server
 	log.Fatal(r.Run(":8080"))
 }
