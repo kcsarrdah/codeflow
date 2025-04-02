@@ -8,9 +8,11 @@ services:
       - ./internal/parser/python:/app
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 10s
+      interval: 30s
       timeout: 5s
       retries: 3
+    networks:
+      - app-network
 
   backend:
     build: 
@@ -21,13 +23,20 @@ services:
       - .:/app
     environment:
       - PARSER_SERVICE_URL=http://parser:8000
+      - DB_HOST=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=visualdebugger
     depends_on:
       - parser
+      - postgres
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 10s
+      interval: 30s
       timeout: 5s
       retries: 3
+    networks:
+      - app-network
 
   frontend:
     build:
@@ -41,3 +50,25 @@ services:
       - VITE_API_URL=http://localhost:8080
     depends_on:
       - backend
+    networks:
+      - app-network
+
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=visualdebugger
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+
+networks:
+  app-network:
+    driver: bridge

@@ -2,6 +2,7 @@
 package main
 
 import (
+	"debugger/internal/database"
 	"debugger/internal/handlers"
 	"debugger/internal/parser"
 	"log"
@@ -12,6 +13,15 @@ import (
 )
 
 func main() {
+
+	db, err := database.Initialize()
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+	if err := database.RunMigrations((db)); err != nil {
+		log.Fatalf("Failed to run migrations: %v", err)
+	}
+
 	// Initialize router
 	r := gin.Default()
 

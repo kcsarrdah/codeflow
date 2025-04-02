@@ -1,5 +1,5 @@
 # Start with a Go image that includes Python
-FROM golang:1.21-bullseye
+FROM golang:latest
 
 # Install Python 3
 RUN apt-get update && apt-get install -y python3 python3-pip

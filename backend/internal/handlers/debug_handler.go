@@ -10,7 +10,7 @@ package handlers
 
 import (
 	"debugger/internal/parser"
-	parsermodels "debugger/internal/parser/models"
+	"debugger/internal/parser/models"
 	"debugger/internal/services/debugger"
 
 	"github.com/gin-gonic/gin"
