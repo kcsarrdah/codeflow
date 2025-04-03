@@ -121,14 +121,14 @@ function Landing() {
             className="inline-flex items-center px-6 py-3 rounded-lg bg-white/80 dark:bg-gray-900/50 text-gray-700 dark:text-white hover:bg-white dark:hover:bg-gray-900/70 transition-all font-semibold shadow-lg hover:shadow-sky-500/10 border border-sky-500/30 hover:-translate-y-0.5"
           >
             <BookOpen className="w-5 h-5 mr-2" />
-            Explore Data Structures
+            Explore Concepts
           </button>
           <button
             onClick={() => navigate('/problems')}
             className="inline-flex items-center px-6 py-3 rounded-lg bg-white/80 dark:bg-gray-900/50 text-gray-700 dark:text-white hover:bg-white dark:hover:bg-gray-900/70 transition-all font-semibold shadow-lg hover:shadow-sky-500/10 border border-sky-500/30 hover:-translate-y-0.5"
           >
             <ListTodo className="w-5 h-5 mr-2" />
-            Practice Problems
+            Practice
           </button>
         </div>
 

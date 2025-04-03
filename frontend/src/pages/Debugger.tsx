@@ -76,7 +76,8 @@ print(f"Sorted array: {sorted_numbers}")
   };
 
   return (
-    <main className="flex-1 p-4 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+    <main className="flex flex-col flex-1 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="flex-1 p-4 overflow-hidden">
       <div className="flex h-full gap-2">
         {/* Left Panel: Code Editor and Variable Inspector */}
         <div 
@@ -169,6 +170,7 @@ print(f"Sorted array: {sorted_numbers}")
             />
           </div>
         </div>
+      </div>
       </div>
 
       <DebugControls

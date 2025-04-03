@@ -84,7 +84,7 @@ const Navbar: React.FC<NavbarProps> = ({ isDarkMode, toggleDarkMode }) => {
                   }`}
                 >
                   <BookOpen className="w-4 h-4" />
-                  <span>Data Structures</span>
+                  <span>Concepts</span>
                 </Link>
                 <Link
                   to="/problems"
