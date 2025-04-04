@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8080/api', // Your Go backend URL
+  baseURL: 'http://localhost:8080', 
   headers: {
     'Content-Type': 'application/json',
   },
@@ -28,18 +28,6 @@ export const problemsApi = {
   getUserProgress: () => api.get('/problems/progress'),
 };
 
-// Debugger-related endpoints
-export const debuggerApi = {
-  saveDebuggerState: (state: {
-    code: string;
-    breakpoints: number[];
-    currentLine: number;
-    variables: any[];
-  }) => api.post('/debugger/state', state),
-  getDebuggerState: () => api.get('/debugger/state'),
-  executeCode: (code: string) => api.post('/debugger/execute', { code }),
-  stepThrough: (sessionId: string) => api.post(`/debugger/step/${sessionId}`),
-};
 
 // User-related endpoints
 export const userApi = {

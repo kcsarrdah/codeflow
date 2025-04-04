@@ -16,6 +16,8 @@ interface ResizeContextType {
   startRightResizing: () => void;
   stopResizing: () => void;
   resize: (event: MouseEvent) => void;
+  leftContainerRef: React.RefObject<HTMLDivElement>;
+  rightContainerRef: React.RefObject<HTMLDivElement>;
 }
 
 const ResizeContext = createContext<ResizeContextType | null>(null);
