@@ -1,6 +1,8 @@
 # CodeFlow
 
-A modern, interactive platform for learning and visualizing algorithms and data structures. Perfect for understanding complex code through visual representation.
+A interactive platform for learning and visualizing/interfacing algorithms and data structures. Perfect for understanding complex code through visual representation.
+The idea is to have an IDE, where you will be able to paste leetcode style problems(for now) and it should be able to parse them and visualize how the code is executing and what is occuring at each step for you. 
+
 
 ![CodeFlow Screenshot](https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?auto=format&fit=crop&q=80&w=3270&ixlib=rb-4.0.3)
 

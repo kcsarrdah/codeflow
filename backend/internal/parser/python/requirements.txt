@@ -2,3 +2,6 @@ fastapi==0.110.0
 uvicorn==0.27.1
 pydantic==2.6.1
 python-multipart==0.0.9
+ipdb==0.13.13
+pytest==7.4.3
+httpx==0.25.2
