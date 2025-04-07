@@ -4,6 +4,7 @@ import { Play, BookOpen, Code2, ListTodo } from 'lucide-react';
 import { Particles } from "react-tsparticles";
 import { loadFull } from "tsparticles";
 import type { Engine } from "tsparticles-engine";
+import { colors } from '../theme/colors';
 
 function Landing() {
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ function Landing() {
   }, []);
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-sky-50 to-indigo-50 dark:from-gray-900 dark:via-slate-900 dark:to-slate-800">
+    <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-background-light-primary via-background-light-secondary to-background-light-tertiary dark:from-background-dark-primary dark:via-background-dark-secondary dark:to-background-dark-tertiary">
       <Particles
         id="tsparticles"
         init={particlesInit}
@@ -51,10 +52,10 @@ function Landing() {
           },
           particles: {
             color: {
-              value: "#0ea5e9",
+              value: colors.primary.light,
             },
             links: {
-              color: "#0ea5e9",
+              color: colors.primary.light,
               distance: 150,
               enable: true,
               opacity: 0.3,
@@ -75,7 +76,7 @@ function Landing() {
                 enable: true,
                 area: 800,
               },
-              value: 100,
+              value: 15,
             },
             opacity: {
               value: 0.5,
@@ -84,26 +85,26 @@ function Landing() {
               type: "circle",
             },
             size: {
-              value: { min: 1, max: 3 },
+              value: { min: 1, max: 2 },
             },
           },
           detectRetina: true,
         }}
       />
 
-      <div className="absolute top-0 left-0 right-0 h-96 bg-sky-500/5 dark:bg-sky-400/5 blur-3xl" />
+      <div className="absolute top-0 left-0 right-0 h-96 bg-primary-light/5 dark:bg-primary-dark/5 blur-3xl" />
 
       <div className="relative z-10 text-center px-4">
         <div className="flex justify-center mb-8">
           <div className="relative">
-            <div className="absolute inset-0 blur-xl bg-sky-400/20 rounded-full" />
-            <Code2 className="relative w-20 h-20 text-sky-500 dark:text-sky-400" />
+            <div className="absolute inset-0 blur-xl bg-primary-light/20 rounded-full" />
+            <Code2 className="relative w-20 h-20 text-primary-light dark:text-primary-dark" />
           </div>
         </div>
-        <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-6">
+        <h1 className="text-5xl font-bold text-text-light-primary dark:text-text-dark-primary mb-6">
           CodeFlow
         </h1>
-        <p className="text-xl text-gray-600 dark:text-sky-100/80 mb-12 max-w-2xl mx-auto">
+        <p className="text-xl text-text-light-secondary dark:text-text-dark-secondary mb-12 max-w-2xl mx-auto">
           Your one-stop solution for mastering Data Structures and Algorithms through interactive visualization.
           Learn, debug, and understand complex code with our powerful visual tools.
         </p>
@@ -111,21 +112,21 @@ function Landing() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <button
             onClick={() => navigate('/debugger')}
-            className="inline-flex items-center px-6 py-3 rounded-lg bg-sky-500 text-white hover:bg-sky-600 dark:hover:bg-sky-400 transition-all font-semibold shadow-lg hover:shadow-sky-500/25 hover:-translate-y-0.5"
+            className="inline-flex items-center px-6 py-3 rounded-lg bg-primary-light text-text-dark-primary hover:bg-primary-dark dark:hover:bg-primary-light transition-all font-semibold shadow-lg hover:shadow-primary-light/25 hover:-translate-y-0.5"
           >
             <Play className="w-5 h-5 mr-2" />
             Start Debugging
           </button>
           <button
             onClick={() => navigate('/data-structures')}
-            className="inline-flex items-center px-6 py-3 rounded-lg bg-white/80 dark:bg-gray-900/50 text-gray-700 dark:text-white hover:bg-white dark:hover:bg-gray-900/70 transition-all font-semibold shadow-lg hover:shadow-sky-500/10 border border-sky-500/30 hover:-translate-y-0.5"
+            className="inline-flex items-center px-6 py-3 rounded-lg bg-background-light-primary/80 dark:bg-background-dark-primary/50 text-text-light-primary dark:text-text-dark-primary hover:bg-background-light-primary dark:hover:bg-background-dark-primary/70 transition-all font-semibold shadow-lg hover:shadow-primary-light/10 border border-primary-light/30 hover:-translate-y-0.5"
           >
             <BookOpen className="w-5 h-5 mr-2" />
             Explore Concepts
           </button>
           <button
             onClick={() => navigate('/problems')}
-            className="inline-flex items-center px-6 py-3 rounded-lg bg-white/80 dark:bg-gray-900/50 text-gray-700 dark:text-white hover:bg-white dark:hover:bg-gray-900/70 transition-all font-semibold shadow-lg hover:shadow-sky-500/10 border border-sky-500/30 hover:-translate-y-0.5"
+            className="inline-flex items-center px-6 py-3 rounded-lg bg-background-light-primary/80 dark:bg-background-dark-primary/50 text-text-light-primary dark:text-text-dark-primary hover:bg-background-light-primary dark:hover:bg-background-dark-primary/70 transition-all font-semibold shadow-lg hover:shadow-primary-light/10 border border-primary-light/30 hover:-translate-y-0.5"
           >
             <ListTodo className="w-5 h-5 mr-2" />
             Practice
@@ -134,34 +135,34 @@ function Landing() {
 
         <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
           <div className="relative group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-sky-500 to-sky-600 rounded-lg blur opacity-20 group-hover:opacity-30 transition duration-1000"></div>
-            <div className="relative bg-white/80 dark:bg-gray-900/60 backdrop-blur-xl rounded-lg p-6 border border-sky-500/10">
-              <h3 className="text-xl font-semibold text-sky-600 dark:text-sky-400 mb-2">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-primary-light to-primary-dark rounded-lg blur opacity-20 group-hover:opacity-30 transition duration-1000"></div>
+            <div className="relative bg-background-light-primary/80 dark:bg-background-dark-primary/60 backdrop-blur-xl rounded-lg p-6 border border-primary-light/10">
+              <h3 className="text-xl font-semibold text-primary-light dark:text-primary-dark mb-2">
                 Visual Learning
               </h3>
-              <p className="text-gray-600 dark:text-sky-100/70">
+              <p className="text-text-light-secondary dark:text-text-dark-secondary">
                 See your algorithms and data structures come to life with real-time visualization
               </p>
             </div>
           </div>
           <div className="relative group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-sky-500 to-sky-600 rounded-lg blur opacity-20 group-hover:opacity-30 transition duration-1000"></div>
-            <div className="relative bg-white/80 dark:bg-gray-900/60 backdrop-blur-xl rounded-lg p-6 border border-sky-500/10">
-              <h3 className="text-xl font-semibold text-sky-600 dark:text-sky-400 mb-2">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-primary-light to-primary-dark rounded-lg blur opacity-20 group-hover:opacity-30 transition duration-1000"></div>
+            <div className="relative bg-background-light-primary/80 dark:bg-background-dark-primary/60 backdrop-blur-xl rounded-lg p-6 border border-primary-light/10">
+              <h3 className="text-xl font-semibold text-primary-light dark:text-primary-dark mb-2">
                 Interactive Debugging
               </h3>
-              <p className="text-gray-600 dark:text-sky-100/70">
+              <p className="text-text-light-secondary dark:text-text-dark-secondary">
                 Step through your code and watch how each operation affects your data
               </p>
             </div>
           </div>
           <div className="relative group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-sky-500 to-sky-600 rounded-lg blur opacity-20 group-hover:opacity-30 transition duration-1000"></div>
-            <div className="relative bg-white/80 dark:bg-gray-900/60 backdrop-blur-xl rounded-lg p-6 border border-sky-500/10">
-              <h3 className="text-xl font-semibold text-sky-600 dark:text-sky-400 mb-2">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-primary-light to-primary-dark rounded-lg blur opacity-20 group-hover:opacity-30 transition duration-1000"></div>
+            <div className="relative bg-background-light-primary/80 dark:bg-background-dark-primary/60 backdrop-blur-xl rounded-lg p-6 border border-primary-light/10">
+              <h3 className="text-xl font-semibold text-primary-light dark:text-primary-dark mb-2">
                 Multiple Data Structures
               </h3>
-              <p className="text-gray-600 dark:text-sky-100/70">
+              <p className="text-text-light-secondary dark:text-text-dark-secondary">
                 Support for arrays, trees, graphs, linked lists, and more
               </p>
             </div>

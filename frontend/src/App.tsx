@@ -9,6 +9,7 @@ import DataStructureDetail from './pages/DataStructureDetail';
 import Problems from './pages/Problems';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ResizeProvider } from './context/ResizeContext';
+import ColorExample from './components/ColorExample';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth();
@@ -62,6 +63,7 @@ function AppContent() {
                 <Problems />
               </ProtectedRoute>
             } />
+            <Route path="/colors" element={<ColorExample />} />
           </Routes>
         </div>
       </div>

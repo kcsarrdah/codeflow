@@ -121,9 +121,9 @@ function Problems() {
                               {difficulty}
                             </h3>
                             <span className={`px-2 py-1 rounded-full text-xs font-medium text-white ${
-                              difficulty === 'Easy' ? 'bg-emerald-500' :
-                              difficulty === 'Medium' ? 'bg-amber-500' :
-                              'bg-red-500'
+                              difficulty === 'Easy' ? 'bg-difficulty-easy-light' :
+                              difficulty === 'Medium' ? 'bg-difficulty-medium-light' :
+                              'bg-difficulty-hard-light'
                             }`}>
                               {difficultyProblems.length}
                             </span>
