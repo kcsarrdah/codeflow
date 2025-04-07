@@ -10,6 +10,7 @@ import Problems from './pages/Problems';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ResizeProvider } from './context/ResizeContext';
 import ColorExample from './components/ColorExample';
+import ComponentLibrary from './pages/ComponentLibrary';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth();
@@ -64,6 +65,7 @@ function AppContent() {
               </ProtectedRoute>
             } />
             <Route path="/colors" element={<ColorExample />} />
+            <Route path="/components" element={<ComponentLibrary />} />
           </Routes>
         </div>
       </div>
