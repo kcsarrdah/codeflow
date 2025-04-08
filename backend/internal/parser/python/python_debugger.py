@@ -23,7 +23,42 @@ class CustomDebugger(bdb.Bdb):
         self.stopped = False
         self.current_frame = None
         self.target_filename = session.temp_file_path
+            # For storing call stack information
+        self.call_stack = []
+        self.recursive_functions = []
         print(f"DEBUG: Initialized debugger with target file: {self.target_filename}")
+    
+    def capture_stack(self, frame):
+        stack = []
+        current = frame
+        # Function name -> count (for tracking recursion depth)
+        recursion_counts = {}
+        
+        while current:
+            func_name = current.f_code.co_name
+            
+            # Track recursion count
+            if func_name in recursion_counts:
+                recursion_counts[func_name] += 1
+            else:
+                recursion_counts[func_name] = 1
+                
+            # Get arguments
+            locals_dict = current.f_locals.copy()
+            
+            stack.append({
+                "function": func_name,
+                "line": current.f_lineno,
+                "file": current.f_code.co_filename,
+                "recursion_depth": recursion_counts[func_name],
+                "locals": self._format_locals(locals_dict)
+            })
+            
+            current = current.f_back
+            
+        # Stack is built from current frame up, but display is usually top-down
+        stack.reverse()
+        return stack
         
     def user_line(self, frame):
         # Called when we hit a new line
@@ -35,6 +70,22 @@ class CustomDebugger(bdb.Bdb):
             self.current_frame = frame
             self.session.current_line = frame.f_lineno
             self.session.capture_variables(frame)
+
+        # Capture stack information
+            self.session.call_stack = self.capture_stack(frame)
+            
+            # Detect recursion
+            functions = [frame_info["function"] for frame_info in self.session.call_stack]
+            function_counts = {}
+            for func in functions:
+                if func in function_counts:
+                    function_counts[func] += 1
+                else:
+                    function_counts[func] = 1
+                    
+            self.session.recursive_functions = [
+                func for func, count in function_counts.items() if count > 1
+            ]
 
             if frame.f_lineno in self.session.breakpoints:
                 print(f"DEBUG: Breakpoint hit at line {frame.f_lineno}")
@@ -66,6 +117,35 @@ class CustomDebugger(bdb.Bdb):
         super().reset()
         self.stopped = False
         print("DEBUG: Debugger reset called")
+    
+    def _format_locals(self, locals_dict):
+        """Format local variables to avoid circular references."""
+        formatted = {}
+        for name, value in locals_dict.items():
+            # Skip private variables
+            if name.startswith('__') and name.endswith('__'):
+                continue
+                
+            try:
+                # Similar to the variable capturing logic in DebugSession
+                if isinstance(value, (int, float, str, bool, type(None))):
+                    formatted[name] = repr(value)
+                elif isinstance(value, (list, tuple, set)):
+                    if len(value) > 10:
+                        formatted[name] = f"{type(value).__name__} with {len(value)} items"
+                    else:
+                        formatted[name] = repr(value)
+                elif isinstance(value, dict):
+                    if len(value) > 5:
+                        formatted[name] = f"dict with {len(value)} items"
+                    else:
+                        formatted[name] = repr(value)
+                else:
+                    formatted[name] = f"{type(value).__name__} object"
+            except:
+                formatted[name] = "Error getting value"
+        
+        return formatted
 
 class DebugSession:
     """
@@ -97,7 +177,10 @@ class DebugSession:
         
         # For storing breakpoints
         self.breakpoints = set()
-        
+
+        # For storing call stack and recursion information
+        self.call_stack = []
+        self.recursive_functions = []
         # For storing variables
         self.variables = []
         
@@ -135,7 +218,9 @@ class DebugSession:
             "is_finished": self.is_finished,
             "output": self.stdout_capture.getvalue().splitlines(),
             "error": self.error,
-            "breakpoints": list(self.breakpoints)
+            "breakpoints": list(self.breakpoints),
+            "call_stack": self.call_stack,
+            "recursive_functions": self.recursive_functions
         }
     
     def __del__(self):

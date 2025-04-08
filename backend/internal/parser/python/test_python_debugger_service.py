@@ -518,6 +518,90 @@ print(f"Pi: {pi}, Random: {random_num}, Time: {current_time}")
         var_names = [v["name"] for v in result["variables"]]
         self.assertTrue("a" in var_names)
 
+    def test_recursion_tracking(self):
+        """Test tracking of recursive function calls."""
+        # Simple factorial function with recursion
+        factorial_code = """
+    def factorial(n):
+        if n <= 1:
+            return 1
+        else:
+            return n * factorial(n-1)
+
+    # Calculate factorial of 5
+    result = factorial(5)
+    print(f"Factorial of 5 is {result}")
+    """
+        
+        # Create session and run
+        result = python_debugger.create_session(factorial_code)
+        session_id = result["id"]
+        
+        # Start execution
+        result = python_debugger.start_execution(session_id)
+        
+        # Step until we're inside the recursive function
+        max_steps = 10
+        inside_recursion = False
+        found_call_stack = False
+        deepest_recursion_depth = 0
+        
+        for _ in range(max_steps):
+            if result["is_finished"]:
+                break
+                
+            # Check if we have a call stack and if 'factorial' is in recursive_functions
+            if "call_stack" in result and result["call_stack"]:
+                found_call_stack = True
+                
+                # Check if we're inside factorial function
+                if any(frame["function"] == "factorial" for frame in result["call_stack"]):
+                    inside_recursion = True
+                    
+                    # Get the max recursion depth for factorial
+                    factorial_frames = [
+                        frame for frame in result["call_stack"] 
+                        if frame["function"] == "factorial"
+                    ]
+                    current_max_depth = max(
+                        frame["recursion_depth"] for frame in factorial_frames
+                    ) if factorial_frames else 0
+                    
+                    deepest_recursion_depth = max(deepest_recursion_depth, current_max_depth)
+                    
+                    # Check if 'factorial' is correctly identified as recursive
+                    if "recursive_functions" in result and "factorial" in result["recursive_functions"]:
+                        # We've confirmed recursion is detected, no need to step further if depth > 1
+                        if deepest_recursion_depth > 1:
+                            break
+            
+            # Step forward
+            result = python_debugger.step_forward(session_id)
+        
+        # Verify call stack is captured
+        self.assertTrue(found_call_stack, "Call stack was not captured")
+        
+        # Verify we detected being inside the recursive function
+        self.assertTrue(inside_recursion, "Did not detect being inside the recursive function")
+        
+        # Verify recursion detection
+        self.assertIn("recursive_functions", result, "No recursive_functions field in result")
+        self.assertIn("factorial", result["recursive_functions"], 
+                    "Failed to identify 'factorial' as a recursive function")
+        
+        # Verify we captured recursion depth
+        self.assertTrue(deepest_recursion_depth > 1, 
+                    f"Did not detect multiple levels of recursion. Max depth: {deepest_recursion_depth}")
+        
+        # Check final output
+        # Keep stepping until finished
+        while not result["is_finished"]:
+            result = python_debugger.step_forward(session_id)
+        
+        # Check the output contains the expected result
+        self.assertTrue(any("Factorial of 5 is 120" in line for line in result["output"]), 
+                    "Expected output 'Factorial of 5 is 120' not found")
+
 
 if __name__ == "__main__":
     unittest.main()
