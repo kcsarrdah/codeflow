@@ -1,17 +1,17 @@
 import unittest
 import os
-import ipdb_service
+import python_debugger
 import time
 import pytest 
+import textwrap
 
-
-class TestIPDBService(unittest.TestCase):
+class TestPythonDebuggerService(unittest.TestCase):
     """Test cases for the IPDB service."""
     
     def setUp(self):
         """Set up test cases."""
         # Clear any existing sessions to ensure clean tests
-        ipdb_service.active_sessions.clear()
+        python_debugger.active_sessions.clear()
         
         # Sample code for testing
         self.sample_code = """
@@ -26,13 +26,13 @@ for i in range(3):
     def tearDown(self):
         """Clean up after tests."""
         # Clean up any sessions created during tests
-        for session_id in list(ipdb_service.active_sessions.keys()):
-            ipdb_service.delete_session(session_id)
+        for session_id in list(python_debugger.active_sessions.keys()):
+            python_debugger.delete_session(session_id)
     
     def test_create_session(self):
         """Test creating a new debugging session."""
         # Create a session
-        result = ipdb_service.create_session(self.sample_code)
+        result = python_debugger.create_session(self.sample_code)
         
         # Check result structure
         self.assertIn("id", result)
@@ -53,46 +53,46 @@ for i in range(3):
         self.assertEqual(result["breakpoints"], [])
         
         # Check that a temporary file was created
-        self.assertTrue(os.path.exists(ipdb_service.active_sessions[result["id"]].temp_file_path))
+        self.assertTrue(os.path.exists(python_debugger.active_sessions[result["id"]].temp_file_path))
     
     def test_get_session(self):
         """Test retrieving an existing session."""
         # Create a session first
-        create_result = ipdb_service.create_session(self.sample_code)
+        create_result = python_debugger.create_session(self.sample_code)
         session_id = create_result["id"]
         
         # Get the session
-        get_result = ipdb_service.get_session(session_id)
+        get_result = python_debugger.get_session(session_id)
         
         # Check that get returns the same data
         self.assertEqual(create_result["id"], get_result["id"])
         self.assertEqual(create_result["current_line"], get_result["current_line"])
         
         # Test getting non-existent session
-        non_existent = ipdb_service.get_session("non-existent-id")
+        non_existent = python_debugger.get_session("non-existent-id")
         self.assertIsNone(non_existent)
     
     def test_delete_session(self):
         """Test deleting a session."""
         # Create a session first
-        create_result = ipdb_service.create_session(self.sample_code)
+        create_result = python_debugger.create_session(self.sample_code)
         session_id = create_result["id"]
         
         # Get file path to check for removal
-        temp_file_path = ipdb_service.active_sessions[session_id].temp_file_path
+        temp_file_path = python_debugger.active_sessions[session_id].temp_file_path
         
         # Delete the session
-        result = ipdb_service.delete_session(session_id)
+        result = python_debugger.delete_session(session_id)
         
         # Check results
         self.assertTrue(result)
-        self.assertNotIn(session_id, ipdb_service.active_sessions)
+        self.assertNotIn(session_id, python_debugger.active_sessions)
         
         # Check that temporary file was removed
         self.assertFalse(os.path.exists(temp_file_path))
         
         # Try deleting non-existent session
-        result = ipdb_service.delete_session("non-existent-id")
+        result = python_debugger.delete_session("non-existent-id")
         self.assertFalse(result)
     
     def test_start_execution_and_step(self):
@@ -102,11 +102,11 @@ for i in range(3):
         """
         # Create a very simple session with code that should run quickly
         simple_code = "a = 1\nb = 2\nc = a + b\nprint(f'Result: {c}')"
-        create_result = ipdb_service.create_session(simple_code)
+        create_result = python_debugger.create_session(simple_code)
         session_id = create_result["id"]
         
         # Start execution
-        result = ipdb_service.start_execution(session_id)
+        result = python_debugger.start_execution(session_id)
         
         # Check that execution has started
         self.assertTrue(result["has_started"])
@@ -122,7 +122,7 @@ for i in range(3):
             has_var_b = False
             
             while attempts < 5 and not (has_var_a and has_var_b):
-                result = ipdb_service.step_forward(session_id)
+                result = python_debugger.step_forward(session_id)
                 has_var_a = has_var_a or any(v["name"] == "a" for v in result["variables"])
                 has_var_b = has_var_b or any(v["name"] == "b" for v in result["variables"])
                 attempts += 1
@@ -144,7 +144,7 @@ for i in range(3):
         for _ in range(max_attempts):
             if result["is_finished"]:
                 break
-            result = ipdb_service.step_forward(session_id)
+            result = python_debugger.step_forward(session_id)
         
         # After several steps, execution should eventually finish
         # If it hasn't finished, we won't fail the test but will log a warning
@@ -167,18 +167,18 @@ print("This won't execute")
 """
         
         # Create session and start execution
-        result = ipdb_service.create_session(error_code)
+        result = python_debugger.create_session(error_code)
         session_id = result["id"]
         
         # Start execution
-        result = ipdb_service.start_execution(session_id)
+        result = python_debugger.start_execution(session_id)
         
         # Either we're already at the error point or we need to step to it
         if not result["is_finished"] and not result["error"]:
             # Step until we hit the error or finish
             max_steps = 5
             for _ in range(max_steps):
-                result = ipdb_service.step_forward(session_id)
+                result = python_debugger.step_forward(session_id)
                 if result["error"] or result["is_finished"]:
                     break
         
@@ -200,17 +200,17 @@ while i < 1000000:
 """
         
         # Create session
-        result = ipdb_service.create_session(infinite_loop_code)
+        result = python_debugger.create_session(infinite_loop_code)
         session_id = result["id"]
         
         # Start execution with a shorter timeout
         start_time = time.time()
-        result = ipdb_service.start_execution(session_id)
+        result = python_debugger.start_execution(session_id)
         
         # Step a few times to get into the loop
         for _ in range(3):
             if not result["is_finished"]:
-                result = ipdb_service.step_forward(session_id)
+                result = python_debugger.step_forward(session_id)
         
         # Make sure we don't wait forever
         elapsed_time = time.time() - start_time
@@ -250,16 +250,16 @@ while i < 1000000:
     john = Person('John', 30)
     """
         # Strip leading indentation
-        complex_structures_code = "\n".join(line.lstrip() for line in complex_structures_code.split("\n"))
+        complex_structures_code = textwrap.dedent(complex_structures_code)
         
         print(f"Executing code:\n{complex_structures_code}")
         
         # Create session and run
-        result = ipdb_service.create_session(complex_structures_code)
+        result = python_debugger.create_session(complex_structures_code)
         session_id = result["id"]
         
         # Start execution
-        result = ipdb_service.start_execution(session_id)
+        result = python_debugger.start_execution(session_id)
         print(f"After start_execution: line={result['current_line']}, finished={result['is_finished']}, error={result['error']}")
         print(f"Variables after start: {result['variables']}")
         
@@ -277,7 +277,7 @@ while i < 1000000:
             if all(found_structures.values()) or result["is_finished"]:
                 break
                 
-            result = ipdb_service.step_forward(session_id)
+            result = python_debugger.step_forward(session_id)
             print(f"Step {i+1}: line={result['current_line']}, finished={result['is_finished']}")
             
             # Check if we've found each structure
@@ -302,11 +302,11 @@ x = 10
 """
         
         # Create session
-        result = ipdb_service.create_session(invalid_code)
+        result = python_debugger.create_session(invalid_code)
         session_id = result["id"]
         
         # Start execution - should fail with syntax error
-        result = ipdb_service.start_execution(session_id)
+        result = python_debugger.start_execution(session_id)
         
         # Should have error and be marked as finished
         self.assertIsNotNone(result["error"], "Expected syntax error but none was captured")
@@ -317,11 +317,11 @@ x = 10
     def test_empty_code(self):
         """Test handling of empty code."""
         # Create session with empty code
-        result = ipdb_service.create_session("")
+        result = python_debugger.create_session("")
         session_id = result["id"]
         
         # Start execution
-        result = ipdb_service.start_execution(session_id)
+        result = python_debugger.start_execution(session_id)
         
         # Should complete without errors
         self.assertIsNone(result["error"], f"Expected no error for empty code, got: {result['error']}")
@@ -344,23 +344,180 @@ print(f"Pi: {pi}, Random: {random_num}, Time: {current_time}")
 """
         
         # Create session and run
-        result = ipdb_service.create_session(import_code)
+        result = python_debugger.create_session(import_code)
         session_id = result["id"]
         
         # Start execution
-        result = ipdb_service.start_execution(session_id)
+        result = python_debugger.start_execution(session_id)
         
         # Step until completion or max steps
         max_steps = 10
         for _ in range(max_steps):
             if result["is_finished"]:
                 break
-            result = ipdb_service.step_forward(session_id)
+            result = python_debugger.step_forward(session_id)
         
         # Should have completed successfully with output
         self.assertIsNone(result["error"], f"Expected no error, got: {result['error']}")
         self.assertTrue(any("Pi:" in line for line in result["output"]), 
                     "Expected output with Pi value not found")
+
+    def test_toggle_breakpoint(self):
+        """Test setting and removing breakpoints."""
+        code = "x = 1\ny = 2\nz = x + y\nprint(z)"
+        result = python_debugger.create_session(code)
+        session_id = result["id"]
+        
+        # Initially no breakpoints
+        self.assertEqual(result["breakpoints"], [])
+        
+        # Add a breakpoint
+        result = python_debugger.toggle_breakpoint(session_id, 2)
+        self.assertEqual(result["breakpoints"], [2])
+        
+        # Toggle it again to remove
+        result = python_debugger.toggle_breakpoint(session_id, 2)
+        self.assertEqual(result["breakpoints"], [])
+        
+        # Add multiple breakpoints
+        python_debugger.toggle_breakpoint(session_id, 1)
+        result = python_debugger.toggle_breakpoint(session_id, 3)
+        self.assertEqual(sorted(result["breakpoints"]), [1, 3])
+
+    def test_get_breakpoints(self):
+        """Test retrieving breakpoints."""
+        code = "x = 1\ny = 2\nz = x + y"
+        result = python_debugger.create_session(code)
+        session_id = result["id"]
+        
+        # Add some breakpoints
+        python_debugger.toggle_breakpoint(session_id, 1)
+        python_debugger.toggle_breakpoint(session_id, 3)
+        
+        # Get breakpoints
+        result = python_debugger.get_breakpoints(session_id)
+        self.assertEqual(sorted(result["breakpoints"]), [1, 3])
+
+    def test_reset_session(self):
+        """Test resetting a debug session."""
+        code = "x = 1\ny = 2\nz = x + y"
+        result = python_debugger.create_session(code)
+        session_id = result["id"]
+        
+        print(f"Session created: {session_id}")
+        
+        # Add breakpoint and start execution
+        python_debugger.toggle_breakpoint(session_id, 2)
+        print(f"Breakpoint set at line 2: {python_debugger.get_breakpoints(session_id)}")
+        
+        result = python_debugger.start_execution(session_id)
+        print(f"After start_execution: line={result['current_line']}, finished={result['is_finished']}")
+        print(f"Variables after start: {result['variables']}")
+        
+        # At this point the session has started and has variables
+        self.assertTrue(result["has_started"])
+        self.assertTrue(len(result["variables"]) > 0)
+        
+        # Now reset the session
+        result = python_debugger.reset_session(session_id)
+        print(f"After reset: line={result['current_line']}, finished={result['is_finished']}, has_started={result['has_started']}")
+        print(f"Variables after reset: {result['variables']}")
+        print(f"Breakpoints after reset: {result['breakpoints']}")
+        
+        # Now verify the session has been reset to initial state but kept breakpoints
+        self.assertFalse(result["has_started"], "Session should not be started after reset")
+        self.assertEqual(result["current_line"], -1, "Current line should be -1 after reset")
+        self.assertEqual(result["variables"], [], "Variables should be empty after reset")
+        self.assertEqual(result["breakpoints"], [2], "Breakpoint should be preserved")
+    
+    # def test_run_to_completion(self):
+    #     """Test running code to completion."""
+    #     code = """
+    # x = 1
+    # y = 2
+    # z = x + y
+    # print(f"Result: {z}")
+    # """
+    #     result = ipdb_service.create_session(code)
+    #     session_id = result["id"]
+        
+    #     # Run to completion
+    #     result = ipdb_service.run_to_completion(session_id)
+        
+    #     # Should be finished
+    #     self.assertTrue(result["is_finished"])
+        
+    #     # Check output
+    #     self.assertTrue(any("Result: 3" in line for line in result["output"]))
+        
+    #     # With breakpoints
+    #     code = """
+    # a = 10
+    # b = 20
+    # c = a + b
+    # d = c * 2
+    # print(f"Final: {d}")
+    # """
+    #     result = ipdb_service.create_session(code)
+    #     session_id = result["id"]
+        
+    #     # Add a breakpoint
+    #     ipdb_service.toggle_breakpoint(session_id, 4)  # Line "d = c * 2"
+        
+    #     # Run to completion
+    #     result = ipdb_service.run_to_completion(session_id)
+        
+    #     # Should have run to the breakpoint
+    #     self.assertFalse(result["is_finished"])
+    #     self.assertTrue(any(v["name"] == "c" for v in result["variables"]))
+    #     self.assertFalse(any(v["name"] == "d" for v in result["variables"]))
+    
+    def test_get_variables(self):
+        """Test getting variables from a session."""
+        code = "x = 42\ny = 'hello'\nz = [1, 2, 3]"
+        result = python_debugger.create_session(code)
+        session_id = result["id"]
+        
+        # Start execution and step to capture variables
+        python_debugger.start_execution(session_id)
+        python_debugger.step_forward(session_id)
+        python_debugger.step_forward(session_id)
+        
+        # Get variables
+        result = python_debugger.get_variables(session_id)
+        var_names = [v["name"] for v in result["variables"]]
+        
+        # Should have x and y
+        self.assertTrue("x" in var_names)
+        self.assertTrue("y" in var_names)
+    
+    def test_get_execution_state(self):
+        """Test getting complete execution state."""
+        code = "a = 10\nb = 20\nc = a + b"
+        result = python_debugger.create_session(code)
+        session_id = result["id"]
+        
+        # Start execution
+        python_debugger.start_execution(session_id)
+        python_debugger.step_forward(session_id)
+        
+        # Get execution state
+        result = python_debugger.get_execution_state(session_id)
+        
+        # Should have all state information
+        self.assertIn("id", result)
+        self.assertIn("current_line", result)
+        self.assertIn("variables", result)
+        self.assertIn("has_started", result)
+        self.assertIn("is_finished", result)
+        self.assertIn("output", result)
+        self.assertIn("error", result)
+        self.assertIn("breakpoints", result)
+        
+        # And should contain variable data
+        var_names = [v["name"] for v in result["variables"]]
+        self.assertTrue("a" in var_names)
+
 
 if __name__ == "__main__":
     unittest.main()
